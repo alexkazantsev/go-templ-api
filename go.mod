@@ -1,4 +1,4 @@
-module github.com/alexkazantsev/templ-api
+module github.com/alexkazantsev/go-templ-api
 
 go 1.23.0
 

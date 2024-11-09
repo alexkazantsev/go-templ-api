@@ -3,7 +3,7 @@ package logger
 import (
 	"fmt"
 
-	"github.com/alexkazantsev/templ-api/modules/config"
+	"github.com/alexkazantsev/go-templ-api/modules/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

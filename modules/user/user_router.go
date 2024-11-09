@@ -1,6 +1,6 @@
 package user
 
-import "github.com/alexkazantsev/templ-api/server"
+import "github.com/alexkazantsev/go-templ-api/server"
 
 func RegisterRouter(server *server.Server, userController UserController) {
 	var group = server.V1.Group("/users")

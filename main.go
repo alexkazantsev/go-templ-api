@@ -7,7 +7,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 
-	"github.com/alexkazantsev/templ-api/cmd"
+	"github.com/alexkazantsev/go-templ-api/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

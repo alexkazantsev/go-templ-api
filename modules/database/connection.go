@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 
-	"github.com/alexkazantsev/templ-api/modules/config"
+	"github.com/alexkazantsev/go-templ-api/modules/config"
 	"github.com/avast/retry-go"
 	"go.uber.org/zap"
 )

@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"github.com/alexkazantsev/templ-api/modules/config"
-	"github.com/alexkazantsev/templ-api/modules/database"
-	"github.com/alexkazantsev/templ-api/modules/user"
-	"github.com/alexkazantsev/templ-api/pkg/logger"
-	"github.com/alexkazantsev/templ-api/server"
+	"github.com/alexkazantsev/go-templ-api/modules/config"
+	"github.com/alexkazantsev/go-templ-api/modules/database"
+	"github.com/alexkazantsev/go-templ-api/modules/user"
+	"github.com/alexkazantsev/go-templ-api/pkg/logger"
+	"github.com/alexkazantsev/go-templ-api/server"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )
@@ -16,8 +16,9 @@ func Run() *cobra.Command {
 		Short: "run api gateway",
 		Run: func(cmd *cobra.Command, args []string) {
 			fx.New(
+				fx.Provide(logger.NewLogger),
+
 				config.Module,
-				logger.Module,
 				database.Module,
 				server.Module,
 

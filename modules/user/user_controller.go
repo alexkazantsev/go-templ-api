@@ -3,7 +3,7 @@ package user
 import (
 	"net/http"
 
-	"github.com/alexkazantsev/templ-api/domain"
+	"github.com/alexkazantsev/go-templ-api/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

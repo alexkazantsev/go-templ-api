@@ -3,8 +3,8 @@ package server
 import (
 	"net/http"
 
-	"github.com/alexkazantsev/templ-api/modules/config"
-	"github.com/alexkazantsev/templ-api/server/middlewares"
+	"github.com/alexkazantsev/go-templ-api/modules/config"
+	"github.com/alexkazantsev/go-templ-api/server/middlewares"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )

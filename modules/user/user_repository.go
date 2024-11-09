@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 
-	"github.com/alexkazantsev/templ-api/domain"
-	"github.com/alexkazantsev/templ-api/modules/database/storage"
+	"github.com/alexkazantsev/go-templ-api/domain"
+	"github.com/alexkazantsev/go-templ-api/modules/database/storage"
 	"github.com/google/uuid"
 )
 

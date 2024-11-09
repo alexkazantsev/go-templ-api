@@ -3,8 +3,8 @@ package database
 import (
 	"database/sql"
 
-	"github.com/alexkazantsev/templ-api/modules/database/migrations"
-	"github.com/alexkazantsev/templ-api/modules/database/storage"
+	"github.com/alexkazantsev/go-templ-api/modules/database/migrations"
+	"github.com/alexkazantsev/go-templ-api/modules/database/storage"
 	"go.uber.org/fx"
 )
 
