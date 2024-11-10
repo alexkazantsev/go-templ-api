@@ -4,16 +4,46 @@ import (
 	"net/http"
 
 	"github.com/alexkazantsev/go-templ-api/domain"
+	"github.com/alexkazantsev/go-templ-api/modules/user/dto"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type UserController interface {
-	FindOne(context *gin.Context)
+	FindOne(*gin.Context)
+	Create(*gin.Context)
 }
 
 type UserControllerImpl struct {
 	service UserService
+}
+
+func (u *UserControllerImpl) Create(ctx *gin.Context) {
+	var (
+		user    *domain.User
+		request dto.CreateUserRequest
+		err     error
+	)
+
+	if err = ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+		return
+	}
+
+	if err = request.Validate(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+		return
+	}
+
+	if user, err = u.service.Create(ctx, &request); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, user)
 }
 
 func NewUserController(service UserService) UserController {

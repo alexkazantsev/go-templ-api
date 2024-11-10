@@ -11,6 +11,31 @@ import (
 	"github.com/google/uuid"
 )
 
+const create = `-- name: Create :one
+INSERT INTO users (name, email, password)
+VALUES ($1, $2, $3)
+RETURNING id, name, email, password, created_at
+`
+
+type CreateParams struct {
+	Name     string
+	Email    string
+	Password string
+}
+
+func (q *Queries) Create(ctx context.Context, arg CreateParams) (User, error) {
+	row := q.queryRow(ctx, q.createStmt, create, arg.Name, arg.Email, arg.Password)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const findOne = `-- name: FindOne :one
 SELECT id, name, email, password, created_at
 FROM users

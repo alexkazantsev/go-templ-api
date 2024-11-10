@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createStmt, err = db.PrepareContext(ctx, create); err != nil {
+		return nil, fmt.Errorf("error preparing query Create: %w", err)
+	}
 	if q.findOneStmt, err = db.PrepareContext(ctx, findOne); err != nil {
 		return nil, fmt.Errorf("error preparing query FindOne: %w", err)
 	}
@@ -32,6 +35,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createStmt != nil {
+		if cerr := q.createStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createStmt: %w", cerr)
+		}
+	}
 	if q.findOneStmt != nil {
 		if cerr := q.findOneStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing findOneStmt: %w", cerr)
@@ -76,6 +84,7 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db          DBTX
 	tx          *sql.Tx
+	createStmt  *sql.Stmt
 	findOneStmt *sql.Stmt
 }
 
@@ -83,6 +92,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:          tx,
 		tx:          tx,
+		createStmt:  q.createStmt,
 		findOneStmt: q.findOneStmt,
 	}
 }

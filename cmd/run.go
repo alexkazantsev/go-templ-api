@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/alexkazantsev/go-templ-api/modules/config"
+	"github.com/alexkazantsev/go-templ-api/modules/core"
 	"github.com/alexkazantsev/go-templ-api/modules/database"
 	"github.com/alexkazantsev/go-templ-api/modules/user"
 	"github.com/alexkazantsev/go-templ-api/pkg/logger"
@@ -22,6 +23,7 @@ func Run() *cobra.Command {
 				database.Module,
 				server.Module,
 
+				core.Module,
 				user.Module,
 
 				logger.WithZapLogger,
