@@ -15,6 +15,7 @@ type UserController interface {
 	FindOne(*gin.Context)
 	Create(*gin.Context)
 	UpdateOne(*gin.Context)
+	DeleteOne(*gin.Context)
 }
 
 type UserControllerImpl struct {
@@ -99,6 +100,23 @@ func (u *UserControllerImpl) FindOne(ctx *gin.Context) {
 		}
 
 		return user, nil
+	})
+
+	ctx.JSON(status, payload)
+}
+
+func (u *UserControllerImpl) DeleteOne(ctx *gin.Context) {
+	status, payload := xcall.CallS(func() error {
+		var (
+			err error
+			id  uuid.UUID
+		)
+
+		if id, err = uuid.Parse(ctx.Param("id")); err != nil {
+			return fmt.Errorf("id must be a valid uuid: %w", xerror.ErrInvalidRequest)
+		}
+
+		return u.service.DeleteOne(ctx, id)
 	})
 
 	ctx.JSON(status, payload)

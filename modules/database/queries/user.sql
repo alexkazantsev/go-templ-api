@@ -17,3 +17,8 @@ RETURNING *;
 
 -- name: Exist :one
 SELECT EXISTS(SELECT 1 FROM users WHERE id = @id);
+
+-- name: Delete :exec
+DELETE
+FROM users
+WHERE id = @id;

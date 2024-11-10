@@ -8,4 +8,5 @@ func RegisterRouter(server *server.Server, userController UserController) {
 	group.POST("/", userController.Create)
 	group.PUT("/:id", userController.UpdateOne)
 	group.GET("/:id", userController.FindOne)
+	group.DELETE("/:id", userController.DeleteOne)
 }

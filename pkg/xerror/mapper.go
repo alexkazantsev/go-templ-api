@@ -14,12 +14,10 @@ func MapErrorToCode(err error) int {
 	)
 
 	switch {
-	case errors.As(err, &e):
+	case errors.As(err, &e) || errors.Is(err, ErrInvalidRequest):
 		code = http.StatusBadRequest
 	case errors.Is(err, ErrNotFound):
 		code = http.StatusNotFound
-	case errors.Is(err, ErrInvalidRequest):
-		code = http.StatusBadRequest
 	case errors.Is(err, ErrAlreadyExists):
 		code = http.StatusConflict
 	case errors.Is(err, ErrUnprocessableEntity):

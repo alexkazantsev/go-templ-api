@@ -15,6 +15,7 @@ type UserService interface {
 	FindOne(context.Context, uuid.UUID) (*domain.User, error)
 	Create(context.Context, *dto.CreateUserRequest) (*domain.User, error)
 	UpdateOne(context.Context, *dto.UpdateUserRequest) (*domain.User, error)
+	DeleteOne(context.Context, uuid.UUID) error
 }
 
 type UserServiceImpl struct {
@@ -51,6 +52,10 @@ func (u *UserServiceImpl) Create(ctx context.Context, request *dto.CreateUserReq
 
 func (u *UserServiceImpl) FindOne(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	return u.repository.FindOne(ctx, id)
+}
+
+func (u *UserServiceImpl) DeleteOne(ctx context.Context, id uuid.UUID) error {
+	return u.repository.DeleteOne(ctx, id)
 }
 
 func NewUserService(repository UserRepository, passwordSrv core.PasswordService) UserService {

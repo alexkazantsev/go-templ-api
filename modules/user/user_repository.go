@@ -17,6 +17,7 @@ type UserRepository interface {
 	FindOne(context.Context, uuid.UUID) (*domain.User, error)
 	Create(context.Context, *dto.CreateUserRequest) (*domain.User, error)
 	UpdateOne(context.Context, *dto.UpdateUserRequest) (*domain.User, error)
+	DeleteOne(context.Context, uuid.UUID) error
 }
 
 type UserRepositoryImpl struct {
@@ -94,4 +95,8 @@ func (u *UserRepositoryImpl) FindOne(ctx context.Context, id uuid.UUID) (*domain
 
 func (u *UserRepositoryImpl) Exist(ctx context.Context, id uuid.UUID) (bool, error) {
 	return u.q.Exist(ctx, id)
+}
+
+func (u *UserRepositoryImpl) DeleteOne(ctx context.Context, id uuid.UUID) error {
+	return u.q.Delete(ctx, id)
 }

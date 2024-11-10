@@ -36,6 +36,17 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (User, error) {
 	return i, err
 }
 
+const delete = `-- name: Delete :exec
+DELETE
+FROM users
+WHERE id = $1
+`
+
+func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteStmt, delete, id)
+	return err
+}
+
 const exist = `-- name: Exist :one
 SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)
 `

@@ -10,7 +10,7 @@ import (
 
 type Response[T any] struct {
 	Message string            `json:"message"`
-	Payload T                 `json:"payload"`
+	Payload T                 `json:"payload,omitempty"`
 	Error   string            `json:"error,omitempty"`
 	Details map[string]string `json:"details,omitempty"`
 }
