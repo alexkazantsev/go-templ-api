@@ -27,8 +27,14 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createStmt, err = db.PrepareContext(ctx, create); err != nil {
 		return nil, fmt.Errorf("error preparing query Create: %w", err)
 	}
+	if q.existStmt, err = db.PrepareContext(ctx, exist); err != nil {
+		return nil, fmt.Errorf("error preparing query Exist: %w", err)
+	}
 	if q.findOneStmt, err = db.PrepareContext(ctx, findOne); err != nil {
 		return nil, fmt.Errorf("error preparing query FindOne: %w", err)
+	}
+	if q.updateOneStmt, err = db.PrepareContext(ctx, updateOne); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateOne: %w", err)
 	}
 	return &q, nil
 }
@@ -40,9 +46,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createStmt: %w", cerr)
 		}
 	}
+	if q.existStmt != nil {
+		if cerr := q.existStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing existStmt: %w", cerr)
+		}
+	}
 	if q.findOneStmt != nil {
 		if cerr := q.findOneStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing findOneStmt: %w", cerr)
+		}
+	}
+	if q.updateOneStmt != nil {
+		if cerr := q.updateOneStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateOneStmt: %w", cerr)
 		}
 	}
 	return err
@@ -82,17 +98,21 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db          DBTX
-	tx          *sql.Tx
-	createStmt  *sql.Stmt
-	findOneStmt *sql.Stmt
+	db            DBTX
+	tx            *sql.Tx
+	createStmt    *sql.Stmt
+	existStmt     *sql.Stmt
+	findOneStmt   *sql.Stmt
+	updateOneStmt *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:          tx,
-		tx:          tx,
-		createStmt:  q.createStmt,
-		findOneStmt: q.findOneStmt,
+		db:            tx,
+		tx:            tx,
+		createStmt:    q.createStmt,
+		existStmt:     q.existStmt,
+		findOneStmt:   q.findOneStmt,
+		updateOneStmt: q.updateOneStmt,
 	}
 }

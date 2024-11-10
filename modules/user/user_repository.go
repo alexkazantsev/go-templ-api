@@ -2,20 +2,21 @@ package user
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	"github.com/alexkazantsev/go-templ-api/domain"
 	"github.com/alexkazantsev/go-templ-api/modules/database/storage"
 	"github.com/alexkazantsev/go-templ-api/modules/user/dto"
+	"github.com/alexkazantsev/go-templ-api/pkg/xerror"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
-var ErrAlreadyExist = errors.New("user already exists")
-
 type UserRepository interface {
-	FindOne(ctx context.Context, id uuid.UUID) (*domain.User, error)
-	Create(ctx context.Context, request *dto.CreateUserRequest) (*domain.User, error)
+	Exist(context.Context, uuid.UUID) (bool, error)
+	FindOne(context.Context, uuid.UUID) (*domain.User, error)
+	Create(context.Context, *dto.CreateUserRequest) (*domain.User, error)
+	UpdateOne(context.Context, *dto.UpdateUserRequest) (*domain.User, error)
 }
 
 type UserRepositoryImpl struct {
@@ -28,6 +29,26 @@ func NewUserRepository(q *storage.Queries) UserRepository {
 	}
 }
 
+func (u *UserRepositoryImpl) UpdateOne(ctx context.Context, request *dto.UpdateUserRequest) (*domain.User, error) {
+	r, err := u.q.UpdateOne(ctx, storage.UpdateOneParams{
+		ID:    request.ID,
+		Name:  request.Name,
+		Email: request.Email,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.User{
+		ID:        r.ID,
+		Name:      r.Name,
+		Email:     r.Email,
+		Password:  r.Password,
+		CreatedAt: r.CreatedAt,
+	}, nil
+}
+
 func (u *UserRepositoryImpl) Create(ctx context.Context, request *dto.CreateUserRequest) (*domain.User, error) {
 	r, err := u.q.Create(ctx, storage.CreateParams{
 		Name:     request.Name,
@@ -38,7 +59,7 @@ func (u *UserRepositoryImpl) Create(ctx context.Context, request *dto.CreateUser
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok {
 			if pgErr.Code == "23505" {
-				return nil, ErrAlreadyExist
+				return nil, fmt.Errorf("user already exists: %w", xerror.ErrAlreadyExists)
 			}
 
 			return nil, err
@@ -69,4 +90,8 @@ func (u *UserRepositoryImpl) FindOne(ctx context.Context, id uuid.UUID) (*domain
 		Password:  user.Password,
 		CreatedAt: user.CreatedAt,
 	}, nil
+}
+
+func (u *UserRepositoryImpl) Exist(ctx context.Context, id uuid.UUID) (bool, error) {
+	return u.q.Exist(ctx, id)
 }

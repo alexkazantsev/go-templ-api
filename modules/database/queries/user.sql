@@ -7,3 +7,13 @@ WHERE id = @id;
 INSERT INTO users (name, email, password)
 VALUES (@name, @email, @password)
 RETURNING *;
+
+-- name: UpdateOne :one
+UPDATE users
+SET name  = @name,
+    email = @email
+WHERE id = @id
+RETURNING *;
+
+-- name: Exist :one
+SELECT EXISTS(SELECT 1 FROM users WHERE id = @id);

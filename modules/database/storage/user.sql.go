@@ -36,6 +36,17 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (User, error) {
 	return i, err
 }
 
+const exist = `-- name: Exist :one
+SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)
+`
+
+func (q *Queries) Exist(ctx context.Context, id uuid.UUID) (bool, error) {
+	row := q.queryRow(ctx, q.existStmt, exist, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const findOne = `-- name: FindOne :one
 SELECT id, name, email, password, created_at
 FROM users
@@ -44,6 +55,33 @@ WHERE id = $1
 
 func (q *Queries) FindOne(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.queryRow(ctx, q.findOneStmt, findOne, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateOne = `-- name: UpdateOne :one
+UPDATE users
+SET name  = $1,
+    email = $2
+WHERE id = $3
+RETURNING id, name, email, password, created_at
+`
+
+type UpdateOneParams struct {
+	Name  string
+	Email string
+	ID    uuid.UUID
+}
+
+func (q *Queries) UpdateOne(ctx context.Context, arg UpdateOneParams) (User, error) {
+	row := q.queryRow(ctx, q.updateOneStmt, updateOne, arg.Name, arg.Email, arg.ID)
 	var i User
 	err := row.Scan(
 		&i.ID,

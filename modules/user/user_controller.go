@@ -1,10 +1,12 @@
 package user
 
 import (
-	"net/http"
+	"fmt"
 
 	"github.com/alexkazantsev/go-templ-api/domain"
 	"github.com/alexkazantsev/go-templ-api/modules/user/dto"
+	"github.com/alexkazantsev/go-templ-api/pkg/xcall"
+	"github.com/alexkazantsev/go-templ-api/pkg/xerror"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -12,38 +14,66 @@ import (
 type UserController interface {
 	FindOne(*gin.Context)
 	Create(*gin.Context)
+	UpdateOne(*gin.Context)
 }
 
 type UserControllerImpl struct {
 	service UserService
 }
 
+// UpdateOne /users/{id}
+func (u *UserControllerImpl) UpdateOne(ctx *gin.Context) {
+	status, response := xcall.CallM(func() (*domain.User, error) {
+		var (
+			id      uuid.UUID
+			request dto.UpdateUserRequest
+			err     error
+		)
+
+		if id, err = uuid.Parse(ctx.Param("id")); err != nil {
+			return nil, fmt.Errorf("id must be a valid uuid: %w", xerror.ErrInvalidRequest)
+		}
+
+		if err = ctx.ShouldBindJSON(&request); err != nil {
+			return nil, fmt.Errorf("binding error: %w: %w", err, xerror.ErrInvalidRequest)
+		}
+
+		request.ID = id
+
+		if err = request.Validate(); err != nil {
+			return nil, err
+		}
+
+		return u.service.UpdateOne(ctx, &request)
+	})
+
+	ctx.JSON(status, response)
+}
+
 func (u *UserControllerImpl) Create(ctx *gin.Context) {
-	var (
-		user    *domain.User
-		request dto.CreateUserRequest
-		err     error
-	)
+	status, response := xcall.CallM(func() (*domain.User, error) {
+		var (
+			user    *domain.User
+			request dto.CreateUserRequest
+			err     error
+		)
 
-	if err = ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if err = ctx.ShouldBindJSON(&request); err != nil {
+			return nil, fmt.Errorf("binding error: %w: %w", err, xerror.ErrInvalidRequest)
+		}
 
-		return
-	}
+		if err = request.Validate(); err != nil {
+			return nil, err
+		}
 
-	if err = request.Validate(); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if user, err = u.service.Create(ctx, &request); err != nil {
+			return nil, err
+		}
 
-		return
-	}
+		return user, nil
+	})
 
-	if user, err = u.service.Create(ctx, &request); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-
-		return
-	}
-
-	ctx.JSON(http.StatusCreated, user)
+	ctx.JSON(status, response)
 }
 
 func NewUserController(service UserService) UserController {
@@ -59,17 +89,17 @@ func (u *UserControllerImpl) FindOne(ctx *gin.Context) {
 		user *domain.User
 	)
 
-	if id, err = uuid.Parse(ctx.Param("id")); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
+	status, payload := xcall.CallM[*domain.User](func() (*domain.User, error) {
+		if id, err = uuid.Parse(ctx.Param("id")); err != nil {
+			return nil, fmt.Errorf("id must be a valid uuid: %w", xerror.ErrInvalidRequest)
+		}
 
-		return
-	}
+		if user, err = u.service.FindOne(ctx, id); err != nil {
+			return nil, err
+		}
 
-	if user, err = u.service.FindOne(ctx, id); err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return user, nil
+	})
 
-		return
-	}
-
-	ctx.JSON(http.StatusOK, user)
+	ctx.JSON(status, payload)
 }
