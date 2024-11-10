@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/alexkazantsev/go-templ-api/pkg/xerror"
-	validation "github.com/go-ozzo/ozzo-validation"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type Response[T any] struct {

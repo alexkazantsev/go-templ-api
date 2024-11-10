@@ -13,6 +13,7 @@ import (
 
 type UserService interface {
 	FindOne(context.Context, uuid.UUID) (*domain.User, error)
+	FindMany(context.Context, *dto.FindManyRequest) ([]*domain.User, error)
 	Create(context.Context, *dto.CreateUserRequest) (*domain.User, error)
 	UpdateOne(context.Context, *dto.UpdateUserRequest) (*domain.User, error)
 	DeleteOne(context.Context, uuid.UUID) error
@@ -21,6 +22,10 @@ type UserService interface {
 type UserServiceImpl struct {
 	repository  UserRepository
 	passwordSrv core.PasswordService
+}
+
+func (u *UserServiceImpl) FindMany(ctx context.Context, request *dto.FindManyRequest) ([]*domain.User, error) {
+	return u.repository.FindMany(ctx, request)
 }
 
 func (u *UserServiceImpl) UpdateOne(ctx context.Context, request *dto.UpdateUserRequest) (*domain.User, error) {

@@ -3,6 +3,15 @@ SELECT *
 FROM users
 WHERE id = @id;
 
+-- name: FindMany :many
+SELECT *
+FROM users u
+WHERE TRUE
+  AND (CASE
+           WHEN @name::TEXT = '' THEN TRUE
+           ELSE LOWER(u.name) LIKE '%' || @name::TEXT || '%' END)
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
 -- name: Create :one
 INSERT INTO users (name, email, password)
 VALUES (@name, @email, @password)

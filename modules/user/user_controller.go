@@ -13,6 +13,7 @@ import (
 
 type UserController interface {
 	FindOne(*gin.Context)
+	FindMany(*gin.Context)
 	Create(*gin.Context)
 	UpdateOne(*gin.Context)
 	DeleteOne(*gin.Context)
@@ -100,6 +101,27 @@ func (u *UserControllerImpl) FindOne(ctx *gin.Context) {
 		}
 
 		return user, nil
+	})
+
+	ctx.JSON(status, payload)
+}
+
+func (u *UserControllerImpl) FindMany(ctx *gin.Context) {
+	status, payload := xcall.CallM(func() ([]*domain.User, error) {
+		var (
+			err error
+			req dto.FindManyRequest
+		)
+
+		if err = ctx.ShouldBindQuery(&req); err != nil {
+			return nil, xerror.ErrInvalidRequest
+		}
+
+		if err = req.Validate(); err != nil {
+			return nil, err
+		}
+
+		return u.service.FindMany(ctx, &req)
 	})
 
 	ctx.JSON(status, payload)

@@ -33,6 +33,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.existStmt, err = db.PrepareContext(ctx, exist); err != nil {
 		return nil, fmt.Errorf("error preparing query Exist: %w", err)
 	}
+	if q.findManyStmt, err = db.PrepareContext(ctx, findMany); err != nil {
+		return nil, fmt.Errorf("error preparing query FindMany: %w", err)
+	}
 	if q.findOneStmt, err = db.PrepareContext(ctx, findOne); err != nil {
 		return nil, fmt.Errorf("error preparing query FindOne: %w", err)
 	}
@@ -57,6 +60,11 @@ func (q *Queries) Close() error {
 	if q.existStmt != nil {
 		if cerr := q.existStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing existStmt: %w", cerr)
+		}
+	}
+	if q.findManyStmt != nil {
+		if cerr := q.findManyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing findManyStmt: %w", cerr)
 		}
 	}
 	if q.findOneStmt != nil {
@@ -111,6 +119,7 @@ type Queries struct {
 	createStmt    *sql.Stmt
 	deleteStmt    *sql.Stmt
 	existStmt     *sql.Stmt
+	findManyStmt  *sql.Stmt
 	findOneStmt   *sql.Stmt
 	updateOneStmt *sql.Stmt
 }
@@ -122,6 +131,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createStmt:    q.createStmt,
 		deleteStmt:    q.deleteStmt,
 		existStmt:     q.existStmt,
+		findManyStmt:  q.findManyStmt,
 		findOneStmt:   q.findOneStmt,
 		updateOneStmt: q.updateOneStmt,
 	}

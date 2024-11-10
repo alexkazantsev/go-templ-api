@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	validation "github.com/go-ozzo/ozzo-validation"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 func MapErrorToCode(err error) int {

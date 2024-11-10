@@ -10,11 +10,13 @@ import (
 	"github.com/alexkazantsev/go-templ-api/pkg/xerror"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
 )
 
 type UserRepository interface {
 	Exist(context.Context, uuid.UUID) (bool, error)
 	FindOne(context.Context, uuid.UUID) (*domain.User, error)
+	FindMany(context.Context, *dto.FindManyRequest) ([]*domain.User, error)
 	Create(context.Context, *dto.CreateUserRequest) (*domain.User, error)
 	UpdateOne(context.Context, *dto.UpdateUserRequest) (*domain.User, error)
 	DeleteOne(context.Context, uuid.UUID) error
@@ -28,6 +30,28 @@ func NewUserRepository(q *storage.Queries) UserRepository {
 	return &UserRepositoryImpl{
 		q: q,
 	}
+}
+
+func (u *UserRepositoryImpl) FindMany(ctx context.Context, request *dto.FindManyRequest) ([]*domain.User, error) {
+	r, err := u.q.FindMany(ctx, storage.FindManyParams{
+		Name:   request.Name,
+		Offset: int32(request.Offset),
+		Limit:  int32(request.Limit),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(r, func(item storage.User, _ int) *domain.User {
+		return &domain.User{
+			ID:        item.ID,
+			Name:      item.Name,
+			Email:     item.Email,
+			Password:  item.Password,
+			CreatedAt: item.CreatedAt,
+		}
+	}), nil
 }
 
 func (u *UserRepositoryImpl) UpdateOne(ctx context.Context, request *dto.UpdateUserRequest) (*domain.User, error) {

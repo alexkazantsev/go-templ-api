@@ -58,6 +58,51 @@ func (q *Queries) Exist(ctx context.Context, id uuid.UUID) (bool, error) {
 	return exists, err
 }
 
+const findMany = `-- name: FindMany :many
+SELECT id, name, email, password, created_at
+FROM users u
+WHERE TRUE
+  AND (CASE
+           WHEN $1::TEXT = '' THEN TRUE
+           ELSE LOWER(u.name) LIKE '%' || $1::TEXT || '%' END)
+LIMIT $3 OFFSET $2
+`
+
+type FindManyParams struct {
+	Name   string
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) FindMany(ctx context.Context, arg FindManyParams) ([]User, error) {
+	rows, err := q.query(ctx, q.findManyStmt, findMany, arg.Name, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Password,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findOne = `-- name: FindOne :one
 SELECT id, name, email, password, created_at
 FROM users

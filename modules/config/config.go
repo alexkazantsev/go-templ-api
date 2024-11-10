@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/caarlos0/env/v6"
-	validation "github.com/go-ozzo/ozzo-validation"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"go.uber.org/fx"
 )
 
