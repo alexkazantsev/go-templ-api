@@ -12,6 +12,6 @@ func (f FindManyRequest) Validate() error {
 	return validation.ValidateStruct(&f,
 		validation.Field(&f.Name),
 		validation.Field(&f.Limit, validation.Required, validation.Min(1), validation.Max(100)),
-		validation.Field(&f.Offset, validation.Required, validation.Min(0)),
+		validation.Field(&f.Offset, validation.Min(0)),
 	)
 }

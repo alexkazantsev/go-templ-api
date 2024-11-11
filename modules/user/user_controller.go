@@ -11,20 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserController interface {
-	FindOne(*gin.Context)
-	FindMany(*gin.Context)
-	Create(*gin.Context)
-	UpdateOne(*gin.Context)
-	DeleteOne(*gin.Context)
-}
-
-type UserControllerImpl struct {
+type UserController struct {
 	service UserService
 }
 
 // UpdateOne /users/{id}
-func (u *UserControllerImpl) UpdateOne(ctx *gin.Context) {
+func (u *UserController) UpdateOne(ctx *gin.Context) {
 	status, response := xcall.CallM(func() (*domain.User, error) {
 		var (
 			id      uuid.UUID
@@ -52,7 +44,7 @@ func (u *UserControllerImpl) UpdateOne(ctx *gin.Context) {
 	ctx.JSON(status, response)
 }
 
-func (u *UserControllerImpl) Create(ctx *gin.Context) {
+func (u *UserController) Create(ctx *gin.Context) {
 	status, response := xcall.CallM(func() (*domain.User, error) {
 		var (
 			user    *domain.User
@@ -78,13 +70,13 @@ func (u *UserControllerImpl) Create(ctx *gin.Context) {
 	ctx.JSON(status, response)
 }
 
-func NewUserController(service UserService) UserController {
-	return &UserControllerImpl{
+func NewUserController(service UserService) *UserController {
+	return &UserController{
 		service: service,
 	}
 }
 
-func (u *UserControllerImpl) FindOne(ctx *gin.Context) {
+func (u *UserController) FindOne(ctx *gin.Context) {
 	var (
 		err  error
 		id   uuid.UUID
@@ -106,7 +98,7 @@ func (u *UserControllerImpl) FindOne(ctx *gin.Context) {
 	ctx.JSON(status, payload)
 }
 
-func (u *UserControllerImpl) FindMany(ctx *gin.Context) {
+func (u *UserController) FindMany(ctx *gin.Context) {
 	status, payload := xcall.CallM(func() ([]*domain.User, error) {
 		var (
 			err error
@@ -127,7 +119,7 @@ func (u *UserControllerImpl) FindMany(ctx *gin.Context) {
 	ctx.JSON(status, payload)
 }
 
-func (u *UserControllerImpl) DeleteOne(ctx *gin.Context) {
+func (u *UserController) DeleteOne(ctx *gin.Context) {
 	status, payload := xcall.CallS(func() error {
 		var (
 			err error

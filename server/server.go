@@ -6,6 +6,7 @@ import (
 	"github.com/alexkazantsev/go-templ-api/modules/config"
 	"github.com/alexkazantsev/go-templ-api/server/middlewares"
 	"github.com/gin-gonic/gin"
+	cors "github.com/rs/cors/wrapper/gin"
 	"go.uber.org/zap"
 )
 
@@ -23,6 +24,7 @@ func NewServer(cfg config.AppConfig, logger *zap.Logger) *Server {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	engine.Use(cors.AllowAll())
 	engine.Use(gin.Recovery())
 	engine.Use(middlewares.Logger(logger))
 

@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 
-	"github.com/alexkazantsev/go-templ-api/modules/database/migrations"
 	"github.com/alexkazantsev/go-templ-api/modules/database/storage"
 	"go.uber.org/fx"
 )
@@ -11,11 +10,7 @@ import (
 var Module = fx.Module("database",
 	fx.Provide(
 		NewConnection,
-		migrations.Inject,
 		func(con *sql.DB) storage.DBTX { return con },
 		storage.New,
-	),
-	fx.Invoke(
-		Migrate,
 	),
 )

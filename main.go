@@ -16,7 +16,6 @@ func main() {
 	var root = &cobra.Command{Use: "root"}
 
 	root.AddCommand(cmd.Run())
-	root.AddCommand(cmd.MigrationCreate())
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
